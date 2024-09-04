@@ -1,11 +1,11 @@
 
-#include <GL/glew.h>
+#include "GL/glew.h" 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
 #include <iostream>
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include "proc.h"
 #include "utils.h"
 #include "Options.h"
@@ -41,15 +41,30 @@ void NextItemPadding(int padding_x = 20, int padding_y = 0)
     ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + padding_x, ImGui::GetCursorPos().y + padding_y));
 }
 
+BOOL CALLBACK FindWindowContainsProc(HWND hwnd, LPARAM lParam)
+{
+	wchar_t title[256];
+	GetWindowText(hwnd, title, sizeof(title) / sizeof(title[0]));
+
+	
+	if (wcsstr(title, L"Plutonium T6") != nullptr)
+	{
+		*(HWND*)lParam = hwnd;  
+		return FALSE; 
+	}
+	return TRUE;  
+}
+
 int main(int, char**)
 {
     /* ------- Wait for game window ------- */
     HWND hGameWindow = NULL;
     std::cout << "Waiting for Call of Duty\xAE: Black Ops II - Zombies to be opened...\n";
-    while (hGameWindow == NULL)
-    {
-        hGameWindow = FindWindow(NULL, L"Call of Duty\xAE: Black Ops II - Zombies");
-    }
+	while (hGameWindow == NULL)
+	{
+		EnumWindows(FindWindowContainsProc, (LPARAM)&hGameWindow);
+		Sleep(100); 
+	}
     system("cls");
     std::cout << "Process Found!\n";
 
